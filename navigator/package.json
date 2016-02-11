@@ -1,0 +1,12 @@
+{
+  "name": "navigator",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "react-native start"
+  },
+  "dependencies": {
+    "event-emitter": "^0.3.4",
+    "react-native": "^0.19.0"
+  }
+}
