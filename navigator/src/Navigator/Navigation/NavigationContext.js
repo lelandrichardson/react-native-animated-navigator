@@ -6,7 +6,6 @@ import { Set } from 'immutable';
 
 var emptyFunction = () => {};
 
-
 const {
   AT_TARGET,
   BUBBLING_PHASE,
