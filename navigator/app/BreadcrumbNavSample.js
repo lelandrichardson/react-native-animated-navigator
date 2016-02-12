@@ -19,8 +19,9 @@ var {
   ScrollView,
   Text,
   TouchableHighlight,
-  TouchableOpacity
-  } = React;
+  TouchableOpacity,
+  //Navigator,
+} = React;
 
 var Navigator = require('../src/Navigator');
 

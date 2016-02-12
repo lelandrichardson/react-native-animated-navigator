@@ -21,6 +21,7 @@ var {
   Text,
   TouchableHighlight,
   View,
+  //Navigator,
 } = React;
 
 var Navigator = require('../src/Navigator');

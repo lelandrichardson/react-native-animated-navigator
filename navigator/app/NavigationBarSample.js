@@ -21,7 +21,8 @@ var {
   Text,
   TouchableHighlight,
   TouchableOpacity,
-  } = React;
+  //Navigator,
+} = React;
 
 var Navigator = require('../src/Navigator');
 
@@ -93,14 +94,14 @@ var NavigationBarSample = React.createClass({
     var navigator = this.props.navigator;
 
     var callback = (event) => {
-      console.log(
-        `NavigationBarSample : event ${event.type}`,
-        {
-          route: JSON.stringify(event.data.route),
-          target: event.target,
-          type: event.type,
-        }
-      );
+      //console.log(
+      //  `NavigationBarSample : event ${event.type}`,
+      //  {
+      //    route: JSON.stringify(event.data.route),
+      //    target: event.target,
+      //    type: event.type,
+      //  }
+      //);
     };
 
     // Observe focus change events from this component.

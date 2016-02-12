@@ -1,8 +1,13 @@
-import { Dimensions } from 'react-native';
+import { Dimensions, Animated } from 'react-native';
 import NavigatorNavigationBarStylesIOS from './NavigatorNavigationBarStylesIOS';
 var merge = require('./merge');
 
 var buildStyleInterpolator = require('./buildStyleInterpolator');
+
+var interp = (anim, a, b, c) => anim.interpolate({
+  inputRange: [-1, 0, 1],
+  outputRange: [a, b, c],
+});
 
 var SCREEN_WIDTH = Dimensions.get('window').width;
 var STATUS_BAR_HEIGHT = NavigatorNavigationBarStylesIOS.General.StatusBarHeight;
@@ -111,6 +116,13 @@ CENTER[0] = {
 LEFT[0].Title = merge(FIRST_TITLE_BASE, {left: -SCREEN_WIDTH / 4, opacity: 0});
 RIGHT[0].Title = merge(FIRST_TITLE_BASE, {opacity: 0});
 
+var Icon = (anim) => ({
+  opacity: interp(anim, 0, 1, 0),
+});
+
+var Crumb = (anim) => ({
+  left: interp(anim, -SCREEN_WIDTH / 4, 1, 0),
+});
 
 var buildIndexSceneInterpolator = function(startStyles, endStyles) {
   return {

@@ -19,6 +19,7 @@ var {
   StyleSheet,
   Text,
   TouchableHighlight,
+  //Navigator,
 } = React;
 var Navigator = require('../src/Navigator');
 var BreadcrumbNavSample = require('./BreadcrumbNavSample');
@@ -156,14 +157,14 @@ var TabBarExample = React.createClass({
 
       if (navigator) {
         var callback = (event) => {
-          console.log(
-            `TabBarExample: event ${event.type}`,
-            {
-              route: JSON.stringify(event.data.route),
-              target: event.target,
-              type: event.type,
-            }
-          );
+          //console.log(
+          //  `TabBarExample: event ${event.type}`,
+          //  {
+          //    route: JSON.stringify(event.data.route),
+          //    target: event.target,
+          //    type: event.type,
+          //  }
+          //);
         };
         // Observe focus change events from the owner.
         this._listeners = [

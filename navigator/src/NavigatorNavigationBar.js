@@ -2,53 +2,46 @@ import React, {
   Platform,
   View,
   StyleSheet,
+  Animated,
+  PropTypes,
 } from 'react-native';
 import NavigatorNavigationBarStylesAndroid from './NavigatorNavigationBarStylesAndroid';
 import NavigatorNavigationBarStylesIOS from './NavigatorNavigationBarStylesIOS';
 import { Map } from 'immutable';
 import guid from './guid';
 
-
 var COMPONENT_NAMES = ['Title', 'LeftButton', 'RightButton'];
 
-var NavigatorNavigationBarStyles = Platform.OS === 'android'
-  ? NavigatorNavigationBarStylesAndroid
+var NavigationBarStyles = Platform.OS === 'android'
+  ? NavigatorNavigationBarStylesAndroid // TODO(lmr):
   : NavigatorNavigationBarStylesIOS;
-
-var navStatePresentedIndex = function(navState) {
-  if (navState.presentedIndex !== undefined) {
-    return navState.presentedIndex;
-  }
-  // TODO: rename `observedTopOfStack` to `presentedIndex` in `NavigatorIOS`
-  return navState.observedTopOfStack;
-};
 
 var NavigatorNavigationBar = React.createClass({
 
   propTypes: {
-    navigator: React.PropTypes.object,
-    routeMapper: React.PropTypes.shape({
-      Title: React.PropTypes.func.isRequired,
-      LeftButton: React.PropTypes.func.isRequired,
-      RightButton: React.PropTypes.func.isRequired,
+    navigator: PropTypes.object,
+    routeMapper: PropTypes.shape({
+      Title: PropTypes.func.isRequired,
+      LeftButton: PropTypes.func.isRequired,
+      RightButton: PropTypes.func.isRequired,
     }).isRequired,
-    navState: React.PropTypes.shape({
-      routeStack: React.PropTypes.arrayOf(React.PropTypes.object),
-      presentedIndex: React.PropTypes.number,
+    navState: PropTypes.shape({
+      routeStack: PropTypes.arrayOf(PropTypes.object),
+      presentedIndex: PropTypes.number,
     }),
-    navigationStyles: React.PropTypes.object,
+    navigationStyles: PropTypes.object,
     style: View.propTypes.style,
   },
 
   statics: {
-    Styles: NavigatorNavigationBarStyles,
+    Styles: NavigationBarStyles,
     StylesAndroid: NavigatorNavigationBarStylesAndroid,
     StylesIOS: NavigatorNavigationBarStylesIOS,
   },
 
   getDefaultProps() {
     return {
-      navigationStyles: NavigatorNavigationBarStyles,
+      navigationStyles: NavigationBarStyles,
     };
   },
 
@@ -67,75 +60,14 @@ var NavigatorNavigationBar = React.createClass({
 
   _reset() {
     this._key = guid();
-    this._reusableProps = {};
-    this._components = {};
     this._descriptors = {};
 
     COMPONENT_NAMES.forEach(componentName => {
-      this._components[componentName] = new Map();
       this._descriptors[componentName] = new Map();
     });
   },
 
-  _getReusableProps: function(
-    /*string*/componentName,
-    /*number*/index
-  ) /*object*/ {
-    var propStack = this._reusableProps[componentName];
-    if (!propStack) {
-      propStack = this._reusableProps[componentName] = [];
-    }
-    var props = propStack[index];
-    if (!props) {
-      props = propStack[index] = {style:{}};
-    }
-    return props;
-  },
-
-  _updateIndexProgress: function(
-    /*number*/progress,
-    /*number*/index,
-    /*number*/fromIndex,
-    /*number*/toIndex
-  ) {
-    var amount = toIndex > fromIndex ? progress : (1 - progress);
-    var oldDistToCenter = index - fromIndex;
-    var newDistToCenter = index - toIndex;
-    var interpolate;
-    if (oldDistToCenter > 0 && newDistToCenter === 0 ||
-        newDistToCenter > 0 && oldDistToCenter === 0) {
-      interpolate = this.props.navigationStyles.Interpolators.RightToCenter;
-    } else if (oldDistToCenter < 0 && newDistToCenter === 0 ||
-               newDistToCenter < 0 && oldDistToCenter === 0) {
-      interpolate = this.props.navigationStyles.Interpolators.CenterToLeft;
-    } else if (oldDistToCenter === newDistToCenter) {
-      interpolate = this.props.navigationStyles.Interpolators.RightToCenter;
-    } else {
-      interpolate = this.props.navigationStyles.Interpolators.RightToLeft;
-    }
-
-    COMPONENT_NAMES.forEach(function (componentName) {
-      var component = this._components[componentName].get(this.props.navState.routeStack[index]);
-      var props = this._getReusableProps(componentName, index);
-      if (component && interpolate[componentName](props.style, amount)) {
-        component.setNativeProps(props);
-      }
-    }, this);
-  },
-
-  updateProgress: function(
-    /*number*/progress,
-    /*number*/fromIndex,
-    /*number*/toIndex
-  ) {
-    var max = Math.max(fromIndex, toIndex);
-    var min = Math.min(fromIndex, toIndex);
-    for (var index = min; index <= max; index++) {
-      this._updateIndexProgress(progress, index, fromIndex, toIndex);
-    }
-  },
-
-  render: function() {
+  render() {
     var navBarStyle = {
       height: this.props.navigationStyles.General.TotalNavHeight,
     };
@@ -155,11 +87,7 @@ var NavigatorNavigationBar = React.createClass({
     );
   },
 
-  _getComponent: function(
-    /*string*/componentName,
-    /*object*/route,
-    /*number*/index
-  ) /*?Object*/ {
+  _getComponent(componentName, route, index) {
     if (this._descriptors[componentName].includes(route)) {
       return this._descriptors[componentName].get(route);
     }
@@ -172,22 +100,22 @@ var NavigatorNavigationBar = React.createClass({
       index,
       this.props.navState
     );
+
     if (!content) {
       return null;
     }
 
-    var initialStage = index === navStatePresentedIndex(this.props.navState) ?
-      this.props.navigationStyles.Stages.Center :
-      this.props.navigationStyles.Stages.Left;
+    const { anim } = this.props.sceneMap.get(route);
     rendered = (
-      <View
-        ref={(ref) => {
-          this._components[componentName] = this._components[componentName].set(route, ref);
-        }}
+      <Animated.View
         pointerEvents="box-none"
-        style={initialStage[componentName]}>
+        style={[
+          NavigationBarStyles.BaseStyles[componentName],
+          NavigationBarStyles.Animations[componentName](anim)
+        ]}
+      >
         {content}
-      </View>
+      </Animated.View>
     );
 
     this._descriptors[componentName] = this._descriptors[componentName].set(route, rendered);
