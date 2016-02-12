@@ -13,7 +13,7 @@ import guid from './guid';
 var COMPONENT_NAMES = ['Title', 'LeftButton', 'RightButton'];
 
 var NavigationBarStyles = Platform.OS === 'android'
-  ? NavigatorNavigationBarStylesAndroid // TODO(lmr):
+  ? NavigatorNavigationBarStylesAndroid
   : NavigatorNavigationBarStylesIOS;
 
 var NavigatorNavigationBar = React.createClass({
