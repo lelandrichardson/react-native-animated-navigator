@@ -1,2 +1,1 @@
-import Navigator from './Navigator';
-module.exports = Navigator;
+module.exports = require('./Navigator');

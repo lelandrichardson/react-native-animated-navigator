@@ -7,6 +7,10 @@
   },
   "dependencies": {
     "event-emitter": "^0.3.4",
+    "react-clone-referenced-element": "^1.0.1",
     "react-native": "^0.19.0"
+  },
+  "devDependencies": {
+    "react-native-button": "^1.4.2"
   }
 }

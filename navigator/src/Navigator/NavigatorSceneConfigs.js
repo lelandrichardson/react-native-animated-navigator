@@ -34,11 +34,15 @@ var CENTER = {
   translateZ: 0,
   scaleX: 1,
   scaleY: 1,
+  shadowOpacity: 0.5,
+  shadowRadius: 6,
 };
 
 var FromTheRight = {
   ...CENTER,
   translateX: SCREEN_WIDTH,
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
 };
 
 var FromTheLeft = {

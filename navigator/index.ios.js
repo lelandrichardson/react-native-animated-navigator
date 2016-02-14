@@ -12,11 +12,26 @@ import React, {
 } from 'react-native';
 
 import NavigatorExample from './app/NavigatorExample';
+import ExNavigatorExample from './app/ExNavigatorExample';
 
 class navigator extends Component {
+  componentDidMount() {
+    //this.props.navigator.listenToScrollView(this.refs.scrollView);
+  }
   render() {
+    //return (
+    //  <Animated.ScrollView scrollY={this.context.scrollY}>
+    //    <HeroMarquee>
+    //      <NavigatorButtonRow>
+    //        <Button />
+    //        <Button />
+    //      </NavigatorButtonRow>
+    //    </HeroMarquee>
+    //  </Animated.ScrollView>
+    //);
+
     return (
-      <NavigatorExample />
+      <ExNavigatorExample />
     );
   }
 }
