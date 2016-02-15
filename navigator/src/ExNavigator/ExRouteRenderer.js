@@ -135,10 +135,9 @@ export default class ExRouteRenderer {
     }
   }
 
-  renderScene(route, navigator) {
+  renderScene(route, navigator, transition, scroll) {
     if (route.renderScene) {
-      console.log("route.renderScene");
-      let scene = route.renderScene(navigator);
+      let scene = route.renderScene(navigator, transition, scroll);
       if (!scene) {
         return scene;
       }
@@ -152,11 +151,12 @@ export default class ExRouteRenderer {
       'The route must implement renderScene or getSceneClass',
     );
     let Component = route.getSceneClass();
-    console.log(Component);
     return (
       <Component
         ref={component => { route.scene = component; }}
         navigator={navigator}
+        transition={transition}
+        scroll={scroll}
       />
     );
   }

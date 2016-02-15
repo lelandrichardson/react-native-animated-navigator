@@ -49,6 +49,7 @@ export default class ExNavigator extends React.Component {
 
     this._renderScene = this._renderScene.bind(this);
     this._setNavigatorRef = this._setNavigatorRef.bind(this);
+    this._renderNavigationBar = this._renderNavigationBar.bind(this);
   }
 
   render() {
@@ -58,14 +59,14 @@ export default class ExNavigator extends React.Component {
         ref={this._setNavigatorRef}
         configureScene={route => this._routeRenderer.configureScene(route)}
         renderScene={this._renderScene}
-        navigationBar={this._renderNavigationBar()}
+        renderNavigationBar={this._renderNavigationBar}
         sceneStyle={[ExNavigatorStyles.scene, this.props.sceneStyle]}
         style={[ExNavigatorStyles.navigator, this.props.style]}
       />
     );
   }
 
-  _renderScene(route, navigator) {
+  _renderScene(route, navigator, transition, scroll) {
     // We need to subscribe to the navigation context before the navigator is
     // mounted because it emits a didfocus event when it is mounted, before we
     // can get a ref to it
@@ -77,7 +78,7 @@ export default class ExNavigator extends React.Component {
     // would crash if the route calls any method on us in the first render-pass.
     this.__navigator = navigator;
 
-    let scene = this._routeRenderer.renderScene(route, this);
+    let scene = this._routeRenderer.renderScene(route, this, transition, scroll);
     if (typeof this.props.augmentScene === 'function') {
       scene = this.props.augmentScene(scene, route);
     }
@@ -90,14 +91,15 @@ export default class ExNavigator extends React.Component {
     return scene;
   }
 
-  _renderNavigationBar() {
+  _renderNavigationBar(props) {
     if (!this.props.showNavigationBar) {
       return null;
     }
 
     return this.props.renderNavigationBar({
+      ...props,
       routeMapper: this._routeRenderer.navigationBarRouteMapper,
-      style: [ExNavigatorStyles.bar, this.props.navigationBarStyle],
+      style: [props.style, ExNavigatorStyles.bar, this.props.navigationBarStyle],
     });
   }
 
@@ -161,6 +163,7 @@ ExNavigator.SceneConfigs = Navigator.SceneConfigs;
 ExNavigator.Icons = ExNavigatorIcons;
 ExNavigator.propTypes = propTypes;
 ExNavigator.defaultProps = defaultProps;
+ExNavigator.NavigationBar = Navigator.NavigationBar;
 
 
 Object.assign(ExNavigator.prototype, ExNavigatorMixin);

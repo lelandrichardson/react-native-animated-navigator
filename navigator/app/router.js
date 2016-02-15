@@ -1,22 +1,35 @@
-'use strict';
-
-var React = require('react-native');
-var {
+import React, {
   View,
   Text,
   Image
-  } = React;
+} from 'react-native';
+import Navigator from '../src/ExNavigator/index';
+import HomeScene from './HomeScene';
+import MarqueeScene from './MarqueeScene';
+import FancyNavigationBar from './FancyNavigationBar';
 
 var Button = require('react-native-button');
 
-let YourRouter = {
-  getHomeRoute() {
+export default Router = {
+  getHomeSceneWithNavigator() {
+    return {
+      renderScene(navigator) {
+        return (
+          <Navigator
+            navigator={navigator}
+            initialRoute={Router.getHomeScene()}
+            sceneStyle={{ paddingTop: 64 }}
+          />
+        );
+      },
+    };
+  },
+
+  getHomeScene() {
     return {
       // Return a React component class for the scene. It receives a prop
       // called `navigator` that you can use to push on more routes.
-      getSceneClass() {
-        return require('./HomeScene');
-      },
+      getSceneClass: () => HomeScene,
 
       // When this scene receives focus, you can run some code. We're just
       // proxying the `didfocus` event that Navigator emits, so refer to
@@ -34,14 +47,32 @@ let YourRouter = {
     };
   },
 
+  getMarqueeSceneWithNavigator() {
+    return {
+      renderScene(navigator, transition, scroll) {
+        return (
+          <Navigator
+            navigator={navigator}
+            parentScroll={scroll}
+            initialRoute={Router.getMarqueeScene()}
+            sceneStyle={{ paddingTop: 0 }}
+            renderNavigationBar={(props) => {
+              return (
+                <FancyNavigationBar {...props} />
+              );
+            }}
+          />
+        );
+      },
+    };
+  },
 
-  getProfileRoute(profile) {
+  getMarqueeScene() {
     return {
       // You can also render a scene yourself when you need more control over
       // the props of the scene component
-      renderScene(navigator) {
-        let MarqueeScene = require('./MarqueeScene');
-        return <MarqueeScene navigator={navigator} profile={profile} />;
+      renderScene(navigator, transition, scroll) {
+        return <MarqueeScene navigator={navigator} scroll={scroll} />;
       },
 
       // There are onWillBlur and onDidBlur events when the scene loses focus.
@@ -49,7 +80,6 @@ let YourRouter = {
       // respectively. The difference between "will" and "did" is the start and
       // end of the scene transition.
       onDidBlur(event) {
-        console.log(`Profile Scene for ${profile} lost focus.`);
       },
 
       // You can render arbitrary views for the title component. Note that you
@@ -58,13 +88,13 @@ let YourRouter = {
       renderTitle() {
         return (
           <View style={styles.container}>
-            <Text style={styles.titleName}>{profile.name}</Text>
+            <Text style={styles.titleName}>Marquee!</Text>
           </View>
         );
       },
 
       getTitle() {
-        return profile.name;
+        return "Marquee!";
       },
 
       // Render the view to display on the right side of the navigation bar. It
@@ -95,9 +125,5 @@ var styles = {
     height: 30,
     width: 30,
     borderRadius: 15,
-
-  }
-
+  },
 };
-
-module.exports = YourRouter

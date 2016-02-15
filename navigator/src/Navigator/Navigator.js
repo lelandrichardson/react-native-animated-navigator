@@ -12,10 +12,20 @@ import invariant from 'invariant';
 import NavigationContext from './Navigation/NavigationContext';
 import NavigatorNavigationBar from './NavigatorNavigationBar';
 import NavigatorSceneConfigs from './NavigatorSceneConfigs';
-import deprecatedPropType from './deprecatedPropType'; // TODO(lmr): refactor
+import cloneReferencedElement from 'react-clone-referenced-element';
 import clamp from './clamp'; // TODO(lmr): refactor
 
-const easing = Easing.bezier(.42, .97, .45, 1);
+const easing = Easing.bezier(0.42, 0.97, 0.45, 1);
+
+function getOrCreate(map, key, makeDefault) {
+  if (!map.has(key)) {
+    map.set(key, makeDefault());
+  }
+  return map.get(key);
+}
+
+const _scrollMap = new Map();
+const _transitionMap = new Map();
 
 
 // TODO: this is not ideal because there is no guarantee that the navigator
@@ -31,6 +41,8 @@ const SCENE_DISABLED_NATIVE_PROPS = {
     opacity: 0,
   },
 };
+
+const primaryScroll = new Animated.Value(0);
 
 var __uid = 0;
 function getuid() {
@@ -194,23 +206,6 @@ var Navigator = React.createClass({
     initialRouteStack: PropTypes.arrayOf(PropTypes.object),
 
     /**
-     * Will emit the target route upon mounting and before each nav transition
-     */
-    onWillFocus: deprecatedPropType(
-      PropTypes.func,
-      "Use `navigationContext.addListener('willfocus', callback)` instead."
-    ),
-
-    /**
-     * Will be called with the new route of each scene after the transition is
-     * complete or after the initial mounting
-     */
-    onDidFocus: deprecatedPropType(
-      PropTypes.func,
-      "Use `navigationContext.addListener('didfocus', callback)` instead."
-    ),
-
-    /**
      * Optionally provide a navigation bar that persists across scene
      * transitions
      */
@@ -237,6 +232,7 @@ var Navigator = React.createClass({
     return {
       configureScene: () => NavigatorSceneConfigs.PushFromRight,
       sceneStyle: styles.defaultSceneStyle,
+      scroll: primaryScroll,
     };
   },
 
@@ -244,6 +240,7 @@ var Navigator = React.createClass({
     this._navigationBarNavigator = this.props.navigationBarNavigator || this;
 
     this._scenesByRoute = new Map();
+
 
     var routeStack = this.props.initialRouteStack || [this.props.initialRoute];
     invariant(
@@ -257,6 +254,9 @@ var Navigator = React.createClass({
         initialRouteIndex !== -1,
         'initialRoute is not in initialRouteStack.'
       );
+      if (this.props.parentScroll) {
+        _scrollMap.set(this.props.initialRoute, this.props.parentScroll);
+      }
     }
     return {
       sceneConfigStack: routeStack.map(
@@ -327,8 +327,11 @@ var Navigator = React.createClass({
     return this._scenesByRoute.get(this.state.routeStack[index]).anim;
   },
 
+  _scrollValueForIndex(index) {
+    return _scrollMap.get(this.state.routeStack[index]);
+  },
+
   _transitionTo(destIndex, velocity, jumpSpringTo, cb) {
-    console.log('_transitionTo', destIndex, velocity, jumpSpringTo);
     if (destIndex === this.state.presentedIndex) {
       return;
     }
@@ -346,9 +349,13 @@ var Navigator = React.createClass({
     this.state.transitionCb = cb;
     const dest = this._animValueForIndex(destIndex);
     const current = this._animValueForIndex(fromIndex);
+    const destScroll = this._scrollValueForIndex(destIndex);
+    const scroll = this.props.scroll;
     const currentToValue = destIndex > fromIndex ? -1 : 1;
     current.stopAnimation();
     dest.stopAnimation();
+    scroll.stopAnimation();
+
     Animated.parallel([
       Animated.timing(dest, { toValue: 0, easing, }),
       Animated.timing(current, { toValue: currentToValue, easing, }),
@@ -359,6 +366,11 @@ var Navigator = React.createClass({
       }
       this._completeTransition();
       cb && cb();
+
+      Animated.timing(scroll, {
+        toValue: destScroll,
+        duration: 0
+      }).start();
     });
   },
 
@@ -469,12 +481,10 @@ var Navigator = React.createClass({
   },
 
   _handleTouchStart() {
-    console.log('_handleTouchStart');
     this._eligibleGestures = GESTURE_ACTIONS;
   },
 
   _handleMoveShouldSetPanResponder(e, gestureState) {
-    console.log('_handleMoveShouldSetPanResponder');
     var sceneConfig = this.state.sceneConfigStack[this.state.presentedIndex];
     if (!sceneConfig) {
       return false;
@@ -904,7 +914,8 @@ var Navigator = React.createClass({
       : i > presentedIndex
         ? 1
         : 0;
-    const anim = new Animated.Value(val);
+    const anim = getOrCreate(_transitionMap, route, () => new Animated.Value(val));
+    const scroll = getOrCreate(_scrollMap, route, () => new Animated.Value(0));
     const view = (
       <Animated.View
         key={'scene_' + getRouteID(route)}
@@ -917,27 +928,31 @@ var Navigator = React.createClass({
           this.state.sceneConfigStack[i].style(anim),
         ]}
       >
-        {this.props.renderScene(route, this)}
+        {this.props.renderScene(route, this, anim, scroll)}
       </Animated.View>
     );
-    return { anim, view };
+    return { anim, scroll, view };
   },
 
   _renderNavigationBar() {
-    let { navigationBar } = this.props;
-    if (!navigationBar) {
+    let { renderNavigationBar } = this.props;
+    if (!renderNavigationBar) {
       return null;
     }
-    return React.cloneElement(navigationBar, {
-      ref: (navBar) => {
-        this._navBar = navBar;
-        if (navigationBar && typeof navigationBar.ref === 'function') {
-          navigationBar.ref(navBar);
-        }
-      },
+
+    const navBar = renderNavigationBar({
       navigator: this._navigationBarNavigator,
       navState: this.state,
       sceneMap: this._scenesByRoute, // TODO(lmr): do in a way that doesn't expose this structure
+      scroll: this.props.scroll,
+    });
+
+    if (navBar === null) {
+      return navBar;
+    }
+
+    return cloneReferencedElement(navBar, {
+      ref: (el) => { this._navBar = el; },
     });
   },
 
@@ -974,7 +989,7 @@ var Navigator = React.createClass({
       this._navigationContext = new NavigationContext();
     }
     return this._navigationContext;
-  }
+  },
 });
 
 module.exports = Navigator;

@@ -30,7 +30,7 @@ var NavigatorNavigationBar = React.createClass({
       presentedIndex: PropTypes.number,
     }),
     navigationStyles: PropTypes.object,
-    style: View.propTypes.style,
+    style: Animated.View.propTypes.style,
   },
 
   statics: {
@@ -79,11 +79,11 @@ var NavigatorNavigationBar = React.createClass({
     );
 
     return (
-      <View
+      <Animated.View
         key={this._key}
         style={[styles.navBarContainer, navBarStyle, this.props.style]}>
         {components}
-      </View>
+      </Animated.View>
     );
   },
 
@@ -94,24 +94,27 @@ var NavigatorNavigationBar = React.createClass({
 
     var rendered = null;
 
+    const { anim, scroll } = this.props.sceneMap.get(route);
+
     var content = this.props.routeMapper[componentName](
       this.props.navState.routeStack[index],
       this.props.navigator,
       index,
-      this.props.navState
+      this.props.navState,
+      anim,
+      scroll
     );
 
     if (!content) {
       return null;
     }
 
-    const { anim } = this.props.sceneMap.get(route);
     rendered = (
       <Animated.View
         pointerEvents="box-none"
         style={[
           NavigationBarStyles.BaseStyles[componentName],
-          NavigationBarStyles.Animations[componentName](anim)
+          NavigationBarStyles.Animations[componentName](anim),
         ]}
       >
         {content}

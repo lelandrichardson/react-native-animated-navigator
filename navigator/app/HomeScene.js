@@ -13,11 +13,9 @@ const propTypes = {};
 
 const defaultProps = {};
 
-class HomeScene extends Component {
+export default class HomeScene extends Component {
   onPress() {
-    this.props.navigator.push(Router.getProfileRoute({
-      name: 'New Name!',
-    }));
+    this.props.navigator.parentNavigator.push(Router.getMarqueeSceneWithNavigator());
   }
   render() {
     return (
@@ -39,5 +37,3 @@ HomeScene.propTypes = propTypes;
 const styles = StyleSheet.create({
   container: {},
 });
-
-module.exports = HomeScene;

@@ -13,9 +13,10 @@ export default class ExNavigatorExample extends Component {
   render() {
     return (
       <Navigator
-        initialRoute={Router.getHomeRoute()}
+        showNavigationBar={false}
+        initialRoute={Router.getHomeSceneWithNavigator()}
         style={{ flex: 1 }}
-        sceneStyle={{ paddingTop: 64 }}
+        sceneStyle={{ paddingTop: 0 }}
       />
     );
   }
