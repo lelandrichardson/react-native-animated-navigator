@@ -1,5 +1,3 @@
-'use strict';
-
 import {
   PixelRatio,
 } from 'react-native';
