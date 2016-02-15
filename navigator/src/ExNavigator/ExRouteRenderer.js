@@ -137,7 +137,7 @@ export default class ExRouteRenderer {
 
   renderScene(route, navigator, transition, scroll) {
     if (route.renderScene) {
-      let scene = route.renderScene(navigator, transition, scroll);
+      let scene = route.renderScene({ navigator, transition, scroll });
       if (!scene) {
         return scene;
       }

@@ -14,6 +14,7 @@ import NavigatorNavigationBar from './NavigatorNavigationBar';
 import NavigatorSceneConfigs from './NavigatorSceneConfigs';
 import cloneReferencedElement from 'react-clone-referenced-element';
 import clamp from './clamp'; // TODO(lmr): refactor
+import Scene from './Scene';
 
 const easing = Easing.bezier(0.42, 0.97, 0.45, 1);
 
@@ -254,8 +255,8 @@ var Navigator = React.createClass({
         initialRouteIndex !== -1,
         'initialRoute is not in initialRouteStack.'
       );
-      if (this.props.parentScroll) {
-        _scrollMap.set(this.props.initialRoute, this.props.parentScroll);
+      if (this.props.scroll) {
+        _scrollMap.set(this.props.initialRoute, this.props.scroll);
       }
     }
     return {
@@ -917,19 +918,20 @@ var Navigator = React.createClass({
     const anim = getOrCreate(_transitionMap, route, () => new Animated.Value(val));
     const scroll = getOrCreate(_scrollMap, route, () => new Animated.Value(0));
     const view = (
-      <Animated.View
+      <Scene
         key={'scene_' + getRouteID(route)}
         ref={'scene_' + i}
         onStartShouldSetResponderCapture={() => this.state.transitionFromIndex != null}
         pointerEvents={disabledScenePointerEvents}
+        transition={anim}
+        scroll={scroll}
         style={[
           styles.baseScene,
           this.props.sceneStyle,
           this.state.sceneConfigStack[i].style(anim),
         ]}
-      >
-        {this.props.renderScene(route, this, anim, scroll)}
-      </Animated.View>
+        renderScene={() => this.props.renderScene(route, this, anim, scroll)}
+      />
     );
     return { anim, scroll, view };
   },

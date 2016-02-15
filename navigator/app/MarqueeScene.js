@@ -6,11 +6,16 @@ import React, {
   PropTypes,
   ScrollView,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 
 const propTypes = {};
 
 const defaultProps = {};
+
+const contextTypes = {
+  scroll: PropTypes.instanceOf(Animated.Value).isRequired,
+};
 
 export default class MarqueeScene extends Component {
   constructor(props) {
@@ -18,7 +23,7 @@ export default class MarqueeScene extends Component {
     this.onScroll = this.onScroll.bind(this);
   }
   onScroll(e) {
-    const { scroll } = this.props;
+    const { scroll } = this.context;
     const y = e.nativeEvent.contentOffset.y;
     scroll.setValue(y);
   }
@@ -46,6 +51,7 @@ export default class MarqueeScene extends Component {
 
 MarqueeScene.defaultProps = defaultProps;
 MarqueeScene.propTypes = propTypes;
+MarqueeScene.contextTypes = contextTypes;
 
 const styles = StyleSheet.create({
   container: {},

@@ -13,10 +13,10 @@ var Button = require('react-native-button');
 export default Router = {
   getHomeSceneWithNavigator() {
     return {
-      renderScene(navigator) {
+      renderScene(props) {
         return (
           <Navigator
-            navigator={navigator}
+            {...props}
             initialRoute={Router.getHomeScene()}
             sceneStyle={{ paddingTop: 64 }}
           />
@@ -49,18 +49,13 @@ export default Router = {
 
   getMarqueeSceneWithNavigator() {
     return {
-      renderScene(navigator, transition, scroll) {
+      renderScene(props) {
         return (
           <Navigator
-            navigator={navigator}
-            parentScroll={scroll}
+            {...props}
             initialRoute={Router.getMarqueeScene()}
             sceneStyle={{ paddingTop: 0 }}
-            renderNavigationBar={(props) => {
-              return (
-                <FancyNavigationBar {...props} />
-              );
-            }}
+            renderNavigationBar={props => <FancyNavigationBar {...props} />}
           />
         );
       },
@@ -71,8 +66,10 @@ export default Router = {
     return {
       // You can also render a scene yourself when you need more control over
       // the props of the scene component
-      renderScene(navigator, transition, scroll) {
-        return <MarqueeScene navigator={navigator} scroll={scroll} />;
+      renderScene(props) {
+        return (
+          <MarqueeScene {...props} />
+        );
       },
 
       // There are onWillBlur and onDidBlur events when the scene loses focus.
