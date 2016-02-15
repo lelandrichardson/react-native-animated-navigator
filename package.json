@@ -28,8 +28,10 @@
     "immutable": "^3.7.6",
     "invariant": "^2.2.0",
     "object.assign": "^4.0.3",
-    "react-native": "^0.19.0",
-    "react-timer-mixin": "^0.13.3",
-    "rebound": "0.0.13"
+    "react-clone-referenced-element": "^1.0.1",
+    "react-timer-mixin": "^0.13.3"
+  },
+  "peerDependencies": {
+    "react-native": "*"
   }
 }
