@@ -1,4 +1,4 @@
-import EventEmitter from 'EventEmitter'; // TODO(lmr): refactor
+import EventEmitter from 'eventemitter2'; // TODO(lmr): refactor
 import NavigationEvent from './NavigationEvent';
 
 class NavigationEventEmitter extends EventEmitter {
