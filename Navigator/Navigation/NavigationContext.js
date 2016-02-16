@@ -78,7 +78,7 @@ class NavigationContext {
                   this._bubbleEventEmitter;
 
     if (emitter) {
-      return emitter.addListener(eventType, listener, this);
+      return emitter.addListener(eventType, listener/*, this*/);
     } else {
       return {remove: emptyFunction};
     }

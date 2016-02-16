@@ -13,12 +13,22 @@ class NavigationEventEmitter extends EventEmitter.EventEmitter2 {
     return EventEmitter.EventEmitter2.prototype.emit.call(this, ...args);
   }
 
+  on(eventType, listener, useCapture) {
+    EventEmitter.EventEmitter2.prototype.on.call(this, eventType, listener, useCapture);
+    const remove = () => this.removeListener(eventType, listener);
+    return { remove };
+  }
+
   emit(
     eventType,
     data,
     didEmitCallback,
     extraInfo
   ) {
+    if (eventType === 'newListener') {
+      this._superEmit(eventType, data, didEmitCallback, extraInfo);
+      return;
+    }
     if (this._emitting) {
       // An event cycle that was previously created hasn't finished yet.
       // Put this event cycle into the queue and will finish them later.
