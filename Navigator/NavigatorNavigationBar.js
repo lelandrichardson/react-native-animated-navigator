@@ -115,6 +115,7 @@ var NavigatorNavigationBar = React.createClass({
         style={[
           NavigationBarStyles.BaseStyles[componentName],
           NavigationBarStyles.Animations[componentName](anim),
+          this.props[`${componentName}Style`],
         ]}
       >
         {content}
