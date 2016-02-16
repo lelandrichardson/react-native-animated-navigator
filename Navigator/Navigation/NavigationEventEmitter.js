@@ -1,7 +1,7 @@
 import EventEmitter from 'eventemitter2'; // TODO(lmr): refactor
 import NavigationEvent from './NavigationEvent';
 
-class NavigationEventEmitter extends EventEmitter {
+class NavigationEventEmitter extends EventEmitter.EventEmitter2 {
   constructor(target) {
     super();
     this._emitting = false;
@@ -10,7 +10,7 @@ class NavigationEventEmitter extends EventEmitter {
   }
 
   _superEmit(args) {
-    return EventEmitter.prototype.emit.call(this, ...args);
+    return EventEmitter.EventEmitter2.prototype.emit.call(this, ...args);
   }
 
   emit(
