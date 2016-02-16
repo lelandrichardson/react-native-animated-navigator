@@ -9,6 +9,10 @@ class NavigationEventEmitter extends EventEmitter {
     this._target = target;
   }
 
+  _superEmit(args) {
+    return EventEmitter.prototype.emit.call(this, ...args);
+  }
+
   emit(
     eventType,
     data,
@@ -47,7 +51,7 @@ class NavigationEventEmitter extends EventEmitter {
 
     // EventEmitter#emit only takes `eventType` as `String`. Casting `eventType`
     // to `String` to make @flow happy.
-    super.emit(String(eventType), event);
+    this._superEmit(String(eventType), event);
 
     if (typeof didEmitCallback === 'function') {
       didEmitCallback.call(this._target, event);
